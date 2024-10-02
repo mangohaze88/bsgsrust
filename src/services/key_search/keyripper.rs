@@ -226,11 +226,11 @@ impl KeySearch {
                     &private_key_hex).unwrap().to_string(),
             };
 
-            if let Err(e) = self.server_bridge(
-                &config.server_url, &config.api_auth_token, &payload) {
-                eprintln!("Failed to send the data: {}", e);
+            // Save the payload to a text file instead of sending to the server
+            if let Err(e) = self.save_payload_to_file(&payload, "output.txt") {
+                eprintln!("Failed to save the data to the file: {}", e);
             } else {
-                println!("Data successfully sent to the server.");
+                println!("Data successfully saved to the file.");
             }
 
         } else {
@@ -303,4 +303,17 @@ impl KeySearch {
 
         Ok(response)
     }
+
+    pub fn save_payload_to_file(&self, payload: &Payload, file_path: &str) -> io::Result<()> {
+    // Open the file in write mode (create it if it doesn't exist)
+    let mut file = File::create(file_path)?;
+
+    // Write the payload data to the file in a readable format
+    writeln!(file, "Bit Range: {}", payload._bit_range)?;
+    writeln!(file, "Private Key (Hex): {}", payload._private_key_hex)?;
+    writeln!(file, "WIF: {}", payload._wif)?;
+    writeln!(file, "Public Address: {}", payload._public_address)?;
+
+    Ok(())
+}
 }
